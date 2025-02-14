@@ -31,6 +31,8 @@ public enum UsecaseCode {
 
     DATASET_DATA_FILE_URL_ERROR("DATASET_DATA_FILE_URL_ERROR", "File url error"),
 
+    DATASET_DATA_FILE_URL_ILLEGAL("DATASET_DATA_FILE_URL_ILLEGAL", "File url illegal"),
+
     DATASET_DATA_FILE_FORMAT_ERROR("DATASET_DATA_FILE_FORMAT_ERROR", "Incorrect file format"),
 
     DATASET_NOT_FOUND("DATASET_NOT_FOUND", "Dataset not found"),

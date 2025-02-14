@@ -146,3 +146,8 @@ pointCloud:
 dataset:
   similarity:
     url: http://image-vect-visualization:5000/api/v1/calcSimilarity
+
+upload:
+  url:
+    # If not set, no check is performed.  Multiple commas separated
+    whitelist:

@@ -134,6 +134,9 @@ public class UploadDataUseCase {
     @Value("${file.prefix.small:small}")
     private String small;
 
+    @Value("${upload.url.whitelist}")
+    private String whitelist;
+
     private static final ExecutorService executorService = ThreadUtil.newExecutor(2);
     private static final ExecutorService parseExecutorService = ThreadUtil.newExecutor(5);
 
@@ -156,6 +159,11 @@ public class UploadDataUseCase {
     @Transactional(rollbackFor = RuntimeException.class)
     public Long upload(DataInfoUploadBO dataInfoUploadBO) {
         var uploadRecordBO = uploadUseCase.createUploadRecord(dataInfoUploadBO.getFileUrl());
+        if(!checkUrlIsValid(whitelist,dataInfoUploadBO.getFileUrl())){
+            uploadUseCase.updateUploadRecordStatus(uploadRecordBO.getId(), FAILED, DATASET_DATA_FILE_URL_ILLEGAL.getMessage());
+            log.error("File url illegal,datasetId:{},userId:{},fileUrl:{}", dataInfoUploadBO.getDatasetId(), dataInfoUploadBO.getUserId(), dataInfoUploadBO.getFileUrl());
+            return uploadRecordBO.getSerialNumber();
+        }
         var boo = DecompressionFileUtils.validateUrl(dataInfoUploadBO.getFileUrl());
         if (!boo) {
             uploadUseCase.updateUploadRecordStatus(uploadRecordBO.getId(), FAILED, DATASET_DATA_FILE_URL_ERROR.getMessage());
@@ -193,6 +201,20 @@ public class UploadDataUseCase {
             }
         })));
         return uploadRecordBO.getSerialNumber();
+    }
+
+
+    public static boolean checkUrlIsValid(String whitelist, String url) {
+        if(StrUtil.isEmpty(whitelist)){
+            return true;
+        }
+        String[] substrings = whitelist.split(",");
+        for (String substring : substrings) {
+            if (url.contains(substring.trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
